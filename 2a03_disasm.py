@@ -36,6 +36,11 @@ class opcode:
     def get_arg_size(self):
         return addressing_modes[self.addr_mode]
 
+# quick hex() formatter
+def hexd(n,pad=False,pad_count=1):
+    out = hex(n).replace("0x","").upper()
+    if pad: return out if n >= 0x1*(16**(pad_count-1)) else ("0"*(pad_count-len(out)))+out
+    return out
 
 def parse_opcodes_from_file(opcode_file):
     opcode_filename = os.path.split(opcode_file)[-1] 
@@ -88,8 +93,9 @@ def parse_opcodes_from_file(opcode_file):
 
                 new_set.append(op)
                 j+=1
-            op_sets[hex(i-1).replace("0x","")] = new_set
+            op_sets[hexd(i-1)] = new_set
     return op_sets
+
 
 
 
@@ -112,7 +118,7 @@ def main(bin_file):
             cnt += 1
             continue
         byte = data[i]
-        byte = hex(data[i]).replace("0x","")
+        byte = hexd(data[i])
         if data[i] < 0x10: byte = "0"+byte
         opcode_set_id = byte[0]
         opcode_id = byte[1]
@@ -122,12 +128,13 @@ def main(bin_file):
         except:
             byte_code = opcode("???","imp",0,False)
 
-        print(byte,end="\t")
+        print(hexd(i,pad=True,pad_count=4),end=" "*2)
+        print(byte,end=" "*4)
         print(byte_code.mnemonic, end="  ")
         arg_size = byte_code.get_arg_size()
         for j in range(arg_size,0,-1):
             try:
-                print(hex(data[i+j]).replace("0x",""),end=" ")
+                print(hexd(data[i+j],pad=True),end=" ")
             except IndexError:
                 print(i,j,i+j,len(data))
         print()
