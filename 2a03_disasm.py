@@ -117,7 +117,10 @@ def main(bin_file):
         opcode_set_id = byte[0]
         opcode_id = byte[1]
  
-        byte_code = opcode_sets[opcode_set_id][int(opcode_id,16)]
+        try:
+            byte_code = opcode_sets[opcode_set_id][int(opcode_id,16)]
+        except:
+            byte_code = opcode("???","imp",0,False)
 
         print(byte,end="\t")
         print(byte_code.mnemonic, end="  ")
