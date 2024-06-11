@@ -29,7 +29,6 @@ addressing_modes = {
 
 class opcode:
     def __init__(self,mnemonic,mode,cycle_count,add_cycle):
-        #print(mnemonic,mode,cycle_count,add_cycle)
         self.mnemonic = mnemonic
         self.addr_mode = mode
         self.cycle_count = cycle_count
@@ -37,7 +36,6 @@ class opcode:
 
 
     def get_arg_size(self):
-            
         return addressing_modes[self.addr_mode]
 
 # quick hex() formatter
@@ -63,9 +61,8 @@ def parse_opcodes_from_file(opcode_file):
             for code in opcodes:
                 if code == "": continue
 
-                # wacky hack: remove trailing spaces
-                for h in range(2,5):
-                    code = code.replace(" "*h,"")
+                # wackier hack: remove trailing spaces (like a normal person)
+                code = code.replace("  ","")
                 if code[-1] == " ": code = code[:-1]
 
                 op_args = code.replace("\n","").split(" ")
@@ -132,16 +129,18 @@ def main(bin_file):
         except:
             op = opcode("???","imp",0,False)
 
-        print(hexd(i,pad=True,pad_count=4),end=" "*2)
-        print(byte,end=" "*4)
-        print(op.mnemonic, end="  ")
         arg_size = op.get_arg_size()
+        args = []
 
-        arg_start = i+arg_size
-        arg_end = max(arg_start,arg_start+arg_size)
-        args = data[arg_start:arg_end]
-        #print(data[arg_start:arg_end],arg_end,end=" ")
-        for byte in args:
+        if arg_size > 0:
+            arg_start = i+1
+            arg_end = max(arg_start,arg_start+arg_size)
+            args = data[arg_start:arg_end]
+
+        print(hexd(i,pad=True,pad_count=4),end=" "*2)
+        print(byte+"".join([hexd(b,pad=True) for b in args[::-1]]),end="\t")
+        print(op.mnemonic, end="  ")
+        for byte in args[::-1]:
             print(hexd(byte,pad=True),end=" ")
 
         """if arg_size != 0:
