@@ -129,6 +129,18 @@ def main(bin_file):
         except:
             op = opcode("???","imp",0,False)
 
+        print(hexd(i,pad=True,pad_count=4),end=" "*2)
+
+        # Illegal opcode - interpret as .DB
+        """if op.mnemonic == "NOP":
+            print(byte,end="\t")
+            print(".DB",end="  ")
+            print(byte,end=" ")
+
+            i += 1
+            cnt += 1
+
+        else:"""
         arg_size = op.get_arg_size()
         args = []
 
@@ -137,11 +149,14 @@ def main(bin_file):
             arg_end = max(arg_start,arg_start+arg_size)
             args = data[arg_start:arg_end]
 
-        print(hexd(i,pad=True,pad_count=4),end=" "*2)
-        print(byte+"".join([hexd(b,pad=True) for b in args[::-1]]),end="\t")
+        print(byte+"".join([hexd(b,pad=True) for b in args]),end="\t")
+
         print(op.mnemonic, end="  ")
         for byte in args[::-1]:
             print(hexd(byte,pad=True),end=" ")
+
+        i += arg_size + 1
+        cnt += 1       
 
         """if arg_size != 0:
             if op.addr_mode == "imm":
@@ -163,8 +178,6 @@ def main(bin_file):
                 print(i,j,i+j,len(data))"""
         print()
 
-        i += arg_size + 1
-        cnt += 1       
 
 if __name__ == "__main__":
     if len(sys.argv) != 2:
