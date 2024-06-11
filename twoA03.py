@@ -15,6 +15,8 @@ addressing_modes = {
     "zpx":1,
     "zpy":1,
 
+    "acc":1,
+
     "imm":1,
 
     "rel":1,
@@ -33,13 +35,15 @@ class opcode:
         self.cycle_count = cycle_count
         self.add_cycle = add_cycle
 
+
     def get_arg_size(self):
+            
         return addressing_modes[self.addr_mode]
 
 # quick hex() formatter
-def hexd(n,pad=False,pad_count=1):
+def hexd(n,pad=False,pad_count=2):
     out = hex(n).replace("0x","").upper()
-    if pad: return out if n >= 0x1*(16**(pad_count-1)) else ("0"*(pad_count-len(out)))+out
+    if pad: return out if n > 0x1*(16**(pad_count)) else ("0"*(pad_count-len(out)))+out
     return out
 
 def parse_opcodes_from_file(opcode_file):
@@ -124,19 +128,40 @@ def main(bin_file):
         opcode_id = byte[1]
  
         try:
-            byte_code = opcode_sets[opcode_set_id][int(opcode_id,16)]
+            op = opcode_sets[opcode_set_id][int(opcode_id,16)]
         except:
-            byte_code = opcode("???","imp",0,False)
+            op = opcode("???","imp",0,False)
 
         print(hexd(i,pad=True,pad_count=4),end=" "*2)
         print(byte,end=" "*4)
-        print(byte_code.mnemonic, end="  ")
-        arg_size = byte_code.get_arg_size()
-        for j in range(arg_size,0,-1):
+        print(op.mnemonic, end="  ")
+        arg_size = op.get_arg_size()
+
+        arg_start = i+arg_size
+        arg_end = max(arg_start,arg_start+arg_size)
+        args = data[arg_start:arg_end]
+        #print(data[arg_start:arg_end],arg_end,end=" ")
+        for byte in args:
+            print(hexd(byte,pad=True),end=" ")
+
+        """if arg_size != 0:
+            if op.addr_mode == "imm":
+                print("$#"+hexd(data[i+arg_size-1],pad=True),end=" ")
+            else:
+                for j in range(arg_size,0,-1):
+                    try:
+                        print(hexd(data[i+j],pad=True),end=" ")
+                    except IndexError:
+                        print("\nAccess Violation: ",i+j)
+        """
+
+
+
+        """for j in range(arg_size,0,-1):
             try:
                 print(hexd(data[i+j],pad=True),end=" ")
             except IndexError:
-                print(i,j,i+j,len(data))
+                print(i,j,i+j,len(data))"""
         print()
 
         i += arg_size + 1
