@@ -98,6 +98,46 @@ def parse_opcodes_from_file(opcode_file):
     return op_sets
 
 
+def format_arg_bytes(args,mode):
+    h_args = [hexd(b,pad=True) for b in args]
+    if mode == "imp":
+        return ""
+
+    if mode == "abs":
+        return "$"+"".join(h_args)
+
+    if mode == "abx":
+        return "$"+"".join(h_args) + ", X"
+
+    if mode == "aby":
+        return "$"+"".join(h_args) + ", Y"
+
+    if mode == "zp":
+        return "$"+h_args[0]
+
+    if mode == "zpx":
+        return "$"+h_args[0] + ", X"
+
+    if mode == "zpy":
+        return "$"+h_args[0] + ", Y"
+
+    if mode == "acc": # this might cause issues
+        return h_args[0]
+
+    if mode == "imm":
+        return "#$"+h_args[0]
+
+    if mode == "rel":
+        return "$"+h_args[0]
+
+    if mode == "ind":
+        return "($" + "".join(h_args) + ")"
+
+    if mode == "izx":
+        return "($" + h_args[0] + ", X)"
+
+    if mode == "izy":
+        return "($" + h_args[0] + "), Y"
 
 
 def main(bin_file):
@@ -152,8 +192,9 @@ def main(bin_file):
         print(byte+"".join([hexd(b,pad=True) for b in args]),end="\t")
 
         print(op.mnemonic, end="  ")
-        for byte in args[::-1]:
-            print(hexd(byte,pad=True),end=" ")
+        print(format_arg_bytes(args[::-1],op.addr_mode))
+        #for byte in args[::-1]:
+            #print(hexd(byte,pad=True),end=" ")
 
         i += arg_size + 1
         cnt += 1       
@@ -176,7 +217,7 @@ def main(bin_file):
                 print(hexd(data[i+j],pad=True),end=" ")
             except IndexError:
                 print(i,j,i+j,len(data))"""
-        print()
+        #print()
 
 
 if __name__ == "__main__":
