@@ -38,12 +38,6 @@ class opcode:
     def get_arg_size(self):
         return addressing_modes[self.addr_mode]
 
-
-class instruction:
-    def __init__(self,opcode,args):
-        self.op = opcode
-        self.args = args
-
 # quick hex() formatter
 def hexd(n,pad=False,pad_count=2):
     out = hex(n).replace("0x","").upper()
@@ -146,7 +140,7 @@ def format_arg_bytes(args,mode):
         return "($" + h_args[0] + "), Y"
 
 
-def disassemble(bin_file):
+def main(bin_file):
     bin_filename = os.path.split(bin_file)[-1]
     print(f"Starting disassembly [{bin_filename}]:")
     opcode_sets = parse_opcodes_from_file("raw_opcodes.txt")
@@ -156,8 +150,6 @@ def disassemble(bin_file):
 
     #print(data)
 
-    instrs = []
-
     i=0
     #for i in range(len(data))
     cnt=0
@@ -166,6 +158,7 @@ def disassemble(bin_file):
         if i > cnt:
             cnt += 1
             continue
+        byte = data[i]
         byte = hexd(data[i])
         if data[i] < 0x10: byte = "0"+byte
         opcode_set_id = byte[0]
@@ -176,7 +169,7 @@ def disassemble(bin_file):
         except:
             op = opcode("???","imp",0,False)
 
-        #print(hexd(i,pad=True,pad_count=4),end=" "*2)
+        print(hexd(i,pad=True,pad_count=4),end=" "*2)
 
         # Illegal opcode - interpret as .DB
         """if op.mnemonic == "NOP":
@@ -196,13 +189,10 @@ def disassemble(bin_file):
             arg_end = max(arg_start,arg_start+arg_size)
             args = data[arg_start:arg_end]
 
-        #print(byte+"".join([hexd(b,pad=True) for b in args]),end="\t")
+        print(byte+"".join([hexd(b,pad=True) for b in args]),end="\t")
 
-        #print(op.mnemonic, end="  ")
-        #print(format_arg_bytes(args[::-1],op.addr_mode))
-
-        instrs.append(instruction(op,args))
-
+        print(op.mnemonic, end="  ")
+        print(format_arg_bytes(args[::-1],op.addr_mode))
         #for byte in args[::-1]:
             #print(hexd(byte,pad=True),end=" ")
 
@@ -229,16 +219,6 @@ def disassemble(bin_file):
                 print(i,j,i+j,len(data))"""
         #print()
 
-    return instrs
-
-def print_disasm(instructions):
-    i=0
-    for instr in instructions:
-        print(hexd(i,pad=True,pad_count=4)+":",end=" "*2)
-        print(instr.op.mnemonic,end=" ")
-        print(format_arg_bytes(instr.args[::-1],instr.op.addr_mode))
-        i += instr.op.get_arg_size()
-
 
 if __name__ == "__main__":
     if len(sys.argv) != 2:
@@ -250,7 +230,5 @@ if __name__ == "__main__":
         print(f"Error: bin file doesn't exist")
         exit()
 
-    print_disasm(disassemble(bin_file))
-
-
+    main(bin_file)
 
