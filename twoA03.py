@@ -33,6 +33,8 @@ class opcode:
         self.addr_mode = mode
         self.cycle_count = cycle_count
         self.add_cycle = add_cycle
+        
+        self.opcode = -1
 
 
     def get_arg_size(self):
@@ -175,6 +177,7 @@ def disassemble(bin_file):
             op = opcode_sets[opcode_set_id][int(opcode_id,16)]
         except:
             op = opcode("???","imp",0,False)
+        op.opcode = f"{opcode_set_id}{opcode_id}"
 
         #print(hexd(i,pad=True,pad_count=4),end=" "*2)
 
@@ -235,6 +238,7 @@ def print_disasm(instructions):
     i=0
     for instr in instructions:
         print(hexd(i,pad=True,pad_count=4)+":",end=" "*2)
+        print(instr.op.opcode+"".join([hexd(b,pad=True) for b in instr.args]),end="\t")
         print(instr.op.mnemonic,end=" ")
         print(format_arg_bytes(instr.args[::-1],instr.op.addr_mode))
         i += instr.op.get_arg_size()
