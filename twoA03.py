@@ -177,7 +177,7 @@ def disassemble(bin_file):
             op = opcode_sets[opcode_set_id][int(opcode_id,16)]
         except:
             op = opcode("???","imp",0,False)
-        op.opcode = f"{opcode_set_id}{opcode_id}"
+        op.opcode = int(f"{opcode_set_id}{opcode_id}",16)
 
         #print(hexd(i,pad=True,pad_count=4),end=" "*2)
 
@@ -205,6 +205,7 @@ def disassemble(bin_file):
         #print(format_arg_bytes(args[::-1],op.addr_mode))
 
         instrs.append(instruction(op,args))
+
 
         #for byte in args[::-1]:
             #print(hexd(byte,pad=True),end=" ")
@@ -235,10 +236,13 @@ def disassemble(bin_file):
     return instrs
 
 def print_disasm(instructions):
+    print("[ Disassembly ]")
+    print(f"\tSize: {len(instructions)} bytes")
+
     i=0
     for instr in instructions:
         print(hexd(i,pad=True,pad_count=4)+":",end=" "*2)
-        print(instr.op.opcode+"".join([hexd(b,pad=True) for b in instr.args]),end="\t")
+        print(hexd(instr.op.opcode,pad=True)+"".join([hexd(b,pad=True) for b in instr.args]),end="\t")
         print(instr.op.mnemonic,end=" ")
         print(format_arg_bytes(instr.args[::-1],instr.op.addr_mode))
         i += instr.op.get_arg_size()
